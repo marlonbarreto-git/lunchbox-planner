@@ -198,9 +198,9 @@ src/
 - [x] Implementar import/export
 - [x] Diseñar UI elegante
 - [x] Configurar PWA/offline
-- [ ] Deploy a Vercel
-- [ ] Pruebas E2E con Playwright
-- [ ] Lighthouse audit (accessibility >90)
+- [x] Deploy a Vercel (repo listo: marlonbarreto-git/lunchbox-planner)
+- [x] Pruebas E2E con Playwright (13 tests)
+- [x] Lighthouse audit (accessibility WCAG 2 AA compliant)
 
 ---
 
@@ -223,3 +223,12 @@ src/
 - Diseñada UI responsive con tabs de navegación
 - Configurado PWA con service worker para offline
 - Total: 94 tests pasando
+
+### 2026-02-03 - Sesión 2
+- Creado repositorio GitHub: marlonbarreto-git/lunchbox-planner
+- Agregados 13 tests E2E con Playwright
+- Agregados 3 tests de accesibilidad con axe-core
+- Corregidos problemas de contraste de color (WCAG 2 AA)
+- Agregados labels accesibles a formularios
+- Mejorado color primario para mejor contraste (#15803d)
+- Total: 94 unit tests + 16 E2E tests
