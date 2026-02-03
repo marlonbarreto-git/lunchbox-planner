@@ -231,4 +231,51 @@ test.describe('LunchBox Planner', () => {
     await expect(page.getByText(/ICBF Colombia/)).toBeVisible()
     await expect(page.getByText(/USDA/)).toBeVisible()
   })
+
+  test('should persist profile data after page reload', async ({ page }) => {
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
+    await page.getByPlaceholder('Ej: María').fill('Persistido')
+
+    const birthDate = new Date()
+    birthDate.setFullYear(birthDate.getFullYear() - 8)
+    await page.locator('input[type="date"]').fill(birthDate.toISOString().split('T')[0])
+
+    await page.getByPlaceholder('Ej: 25').fill('28')
+    await page.getByPlaceholder('Ej: 120').fill('130')
+    await page.getByRole('button', { name: 'Guardar' }).click()
+
+    await expect(page.getByText('Persistido')).toBeVisible()
+
+    await page.reload()
+
+    await expect(page.getByText('Persistido')).toBeVisible()
+    await expect(page.getByText('1 perfil creado')).toBeVisible()
+  })
+
+  test('should persist menu data after page reload', async ({ page }) => {
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
+    await page.getByPlaceholder('Ej: María').fill('MenuTest')
+
+    const birthDate = new Date()
+    birthDate.setFullYear(birthDate.getFullYear() - 7)
+    await page.locator('input[type="date"]').fill(birthDate.toISOString().split('T')[0])
+
+    await page.getByPlaceholder('Ej: 25').fill('25')
+    await page.getByPlaceholder('Ej: 120').fill('120')
+    await page.getByRole('button', { name: 'Guardar' }).click()
+
+    await page.locator('h3:has-text("MenuTest")').click()
+    await page.getByRole('button', { name: /Generar menú semanal/i }).click()
+    await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
+
+    const firstMealName = await page.locator('.bg-white.rounded-xl h4').first().textContent()
+
+    await page.reload()
+
+    await page.getByRole('button', { name: 'Menú' }).click()
+    await expect(page.getByText('Lunes')).toBeVisible()
+    await expect(page.locator('.bg-white.rounded-xl h4').first()).toHaveText(firstMealName!)
+  })
 })

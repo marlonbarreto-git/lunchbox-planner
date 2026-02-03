@@ -9,6 +9,13 @@ import type { ChildProfile, WeeklyMenu } from '@/types'
 
 type View = 'home' | 'profiles' | 'menu' | 'shopping'
 
+const STORAGE_KEYS = {
+  profiles: 'lunchbox_profiles',
+  selectedProfileId: 'lunchbox_selectedProfileId',
+  currentMenu: 'lunchbox_currentMenu',
+  darkMode: 'lunchbox_darkMode',
+} as const
+
 export default function Home() {
   const [profiles, setProfiles] = useState<ChildProfile[]>([])
   const [selectedProfile, setSelectedProfile] = useState<ChildProfile | null>(null)
@@ -16,17 +23,83 @@ export default function Home() {
   const [view, setView] = useState<View>('home')
   const [showForm, setShowForm] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const saved = localStorage.getItem('darkMode')
-    setDarkMode(saved ? saved === 'true' : prefersDark)
+    const savedDarkMode = localStorage.getItem(STORAGE_KEYS.darkMode)
+    setDarkMode(savedDarkMode ? savedDarkMode === 'true' : prefersDark)
+
+    const savedProfiles = localStorage.getItem(STORAGE_KEYS.profiles)
+    if (savedProfiles) {
+      try {
+        const parsed = JSON.parse(savedProfiles) as ChildProfile[]
+        setProfiles(parsed)
+
+        const savedSelectedId = localStorage.getItem(STORAGE_KEYS.selectedProfileId)
+        if (savedSelectedId) {
+          const found = parsed.find(p => p.id === savedSelectedId)
+          if (found) {
+            setSelectedProfile(found)
+            setView('profiles')
+          }
+        }
+
+        const savedMenu = localStorage.getItem(STORAGE_KEYS.currentMenu)
+        if (savedMenu && savedSelectedId) {
+          try {
+            const parsedMenu = JSON.parse(savedMenu) as WeeklyMenu
+            if (parsedMenu.childId === savedSelectedId) {
+              setCurrentMenu(parsedMenu)
+            }
+          } catch {
+            localStorage.removeItem(STORAGE_KEYS.currentMenu)
+          }
+        }
+
+        if (parsed.length > 0) {
+          setView('profiles')
+        }
+      } catch {
+        localStorage.removeItem(STORAGE_KEYS.profiles)
+      }
+    }
+
+    setIsHydrated(true)
   }, [])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
-    localStorage.setItem('darkMode', String(darkMode))
-  }, [darkMode])
+    if (isHydrated) {
+      localStorage.setItem(STORAGE_KEYS.darkMode, String(darkMode))
+    }
+  }, [darkMode, isHydrated])
+
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem(STORAGE_KEYS.profiles, JSON.stringify(profiles))
+    }
+  }, [profiles, isHydrated])
+
+  useEffect(() => {
+    if (isHydrated) {
+      if (selectedProfile) {
+        localStorage.setItem(STORAGE_KEYS.selectedProfileId, selectedProfile.id)
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.selectedProfileId)
+      }
+    }
+  }, [selectedProfile, isHydrated])
+
+  useEffect(() => {
+    if (isHydrated) {
+      if (currentMenu) {
+        localStorage.setItem(STORAGE_KEYS.currentMenu, JSON.stringify(currentMenu))
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.currentMenu)
+      }
+    }
+  }, [currentMenu, isHydrated])
 
   const handleProfileCreate = (profile: ChildProfile) => {
     setProfiles(prev => [...prev, profile])
@@ -116,9 +189,9 @@ export default function Home() {
 
           <hr className="my-16 border-zinc-200 dark:border-zinc-800" />
 
-          <div className="text-sm text-zinc-500 dark:text-zinc-500">
+          <div className="text-sm text-zinc-600 dark:text-zinc-400">
             <p>Basado en guías nutricionales de:</p>
-            <p className="mt-2 text-zinc-400 dark:text-zinc-600">
+            <p className="mt-2 text-zinc-500 dark:text-zinc-500">
               FAO/OMS · ICBF Colombia · USDA
             </p>
           </div>

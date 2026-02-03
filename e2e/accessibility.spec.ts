@@ -28,7 +28,8 @@ test.describe('Accessibility', () => {
 
   test('profile form should have no critical accessibility violations', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -52,7 +53,8 @@ test.describe('Accessibility', () => {
     await page.goto('/')
 
     // Create a profile first
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
     await page.getByPlaceholder('Ej: María').fill('Test')
 
     const birthDate = new Date()
@@ -61,7 +63,7 @@ test.describe('Accessibility', () => {
 
     await page.getByPlaceholder('Ej: 25').fill('25')
     await page.getByPlaceholder('Ej: 120').fill('120')
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
     // Navigate to menu
     await page.locator('h3:has-text("Test")').click()
