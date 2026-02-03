@@ -5,57 +5,64 @@ test.describe('LunchBox Planner', () => {
     await page.goto('/')
   })
 
-  test('should display welcome screen with create profile button', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'LunchBox Planner' })).toBeVisible()
-    await expect(page.getByText('Comienza agregando un perfil')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Crear Primer Perfil' })).toBeVisible()
+  test('should display landing page with feature cards', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: /LunchBox Planner/i })).toBeVisible()
+    await expect(page.getByText(/Planifica almuerzos escolares/)).toBeVisible()
+    await expect(page.getByRole('button', { name: /Comenzar ahora/i })).toBeVisible()
+
+    // Feature cards
+    await expect(page.getByText('Perfiles personalizados')).toBeVisible()
+    await expect(page.getByText('Menús semanales')).toBeVisible()
+    await expect(page.getByText('155+ recetas')).toBeVisible()
+    await expect(page.getByText('Lista de compras')).toBeVisible()
+  })
+
+  test('should navigate to profiles view when clicking start button', async ({ page }) => {
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+
+    await expect(page.getByRole('heading', { name: 'Perfiles', exact: true })).toBeVisible()
+    await expect(page.getByText('Sin perfiles todavía')).toBeVisible()
   })
 
   test('should show profile form when clicking create button', async ({ page }) => {
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
 
-    await expect(page.getByRole('heading', { name: 'Nuevo Perfil' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Nuevo perfil' })).toBeVisible()
     await expect(page.getByPlaceholder('Ej: María')).toBeVisible()
-    await expect(page.getByPlaceholder('Ej: 25')).toBeVisible()
-    await expect(page.getByPlaceholder('Ej: 120')).toBeVisible()
   })
 
   test('should validate required fields in profile form', async ({ page }) => {
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
     await expect(page.getByText('El nombre es requerido')).toBeVisible()
   })
 
   test('should create a child profile successfully', async ({ page }) => {
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
 
-    // Fill out the form using placeholders
     await page.getByPlaceholder('Ej: María').fill('María')
 
-    // Calculate a date that makes the child 7 years old
     const birthDate = new Date()
     birthDate.setFullYear(birthDate.getFullYear() - 7)
-    const dateStr = birthDate.toISOString().split('T')[0]
-    await page.locator('input[type="date"]').fill(dateStr)
+    await page.locator('input[type="date"]').fill(birthDate.toISOString().split('T')[0])
 
     await page.getByPlaceholder('Ej: 25').fill('25')
     await page.getByPlaceholder('Ej: 120').fill('120')
 
-    // Select activity level
-    await page.getByRole('button', { name: 'Moderada' }).click()
+    await page.getByRole('button', { name: /Moderada/i }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
-    // Submit form
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
-
-    // Verify profile was created
     await expect(page.getByText('María')).toBeVisible()
-    await expect(page.getByText('Perfiles (1)')).toBeVisible()
+    await expect(page.getByText('1 perfil creado')).toBeVisible()
   })
 
-  test('should navigate to menu tab after clicking profile card', async ({ page }) => {
-    // Create a profile first
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+  test('should navigate to menu view after selecting profile', async ({ page }) => {
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
     await page.getByPlaceholder('Ej: María').fill('Juan')
 
     const birthDate = new Date()
@@ -64,19 +71,18 @@ test.describe('LunchBox Planner', () => {
 
     await page.getByPlaceholder('Ej: 25').fill('28')
     await page.getByPlaceholder('Ej: 120').fill('130')
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
-    // Click on profile card to select it (click on the name)
-    await page.getByRole('heading', { name: 'Juan' }).click()
+    // Click profile card
+    await page.locator('h3:has-text("Juan")').click()
 
-    // Should navigate to menu tab
-    await expect(page.getByText('Requerimientos de Juan')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Generar Menú Semanal' })).toBeVisible()
+    await expect(page.getByText('Menú de Juan')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Generar menú semanal/i })).toBeVisible()
   })
 
   test('should generate weekly menu', async ({ page }) => {
-    // Create and select a profile
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
     await page.getByPlaceholder('Ej: María').fill('Ana')
 
     const birthDate = new Date()
@@ -85,24 +91,19 @@ test.describe('LunchBox Planner', () => {
 
     await page.getByPlaceholder('Ej: 25').fill('22')
     await page.getByPlaceholder('Ej: 120').fill('115')
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
-    // Click on profile card
-    await page.getByRole('heading', { name: 'Ana' }).click()
+    await page.locator('h3:has-text("Ana")').click()
+    await page.getByRole('button', { name: /Generar menú semanal/i }).click()
 
-    // Generate menu
-    await page.getByRole('button', { name: 'Generar Menú Semanal' }).click()
-
-    // Wait for menu to appear
-    await expect(page.getByText('Menú Semanal')).toBeVisible({ timeout: 5000 })
-    await expect(page.getByText('Lunes')).toBeVisible()
+    await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
     await expect(page.getByText('Viernes')).toBeVisible()
-    await expect(page.getByText('Resumen Semanal')).toBeVisible()
+    await expect(page.getByText('Resumen de la semana')).toBeVisible()
   })
 
-  test('should show shopping list tab after generating menu', async ({ page }) => {
-    // Create, select profile and generate menu
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+  test('should show shopping list after generating menu', async ({ page }) => {
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
     await page.getByPlaceholder('Ej: María').fill('Carlos')
 
     const birthDate = new Date()
@@ -111,45 +112,36 @@ test.describe('LunchBox Planner', () => {
 
     await page.getByPlaceholder('Ej: 25').fill('35')
     await page.getByPlaceholder('Ej: 120').fill('140')
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
-    // Click on profile card
-    await page.getByRole('heading', { name: 'Carlos' }).click()
+    await page.locator('h3:has-text("Carlos")').click()
+    await page.getByRole('button', { name: /Generar menú semanal/i }).click()
+    await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
 
-    await page.getByRole('button', { name: 'Generar Menú Semanal' }).click()
+    // Navigate to shopping
+    await page.getByRole('button', { name: /Compras/i }).click()
 
-    // Wait for menu
-    await expect(page.getByText('Menú Semanal')).toBeVisible({ timeout: 5000 })
-
-    // Click on shopping list tab
-    await page.getByRole('button', { name: 'Lista de Compras' }).click()
-
-    // Verify shopping list is displayed
-    await expect(page.getByRole('heading', { name: 'Lista de Compras' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Lista de compras' })).toBeVisible()
     await expect(page.getByText(/ingredientes para \d+ comidas/)).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Copiar' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Imprimir' })).toBeVisible()
   })
 
   test('should toggle allergies in profile form', async ({ page }) => {
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
 
-    // Toggle some allergies
     await page.getByRole('button', { name: 'gluten' }).click()
     await page.getByRole('button', { name: 'lácteos' }).click()
 
-    // Verify they are selected (have red styling)
     const glutenButton = page.getByRole('button', { name: 'gluten' })
-    await expect(glutenButton).toHaveClass(/bg-red-100/)
+    await expect(glutenButton).toHaveClass(/ring-2/)
 
-    // Toggle off
     await page.getByRole('button', { name: 'gluten' }).click()
-    await expect(glutenButton).not.toHaveClass(/bg-red-100/)
+    await expect(glutenButton).not.toHaveClass(/ring-2/)
   })
 
   test('should delete a profile', async ({ page }) => {
-    // Create a profile
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
     await page.getByPlaceholder('Ej: María').fill('Pedro')
 
     const birthDate = new Date()
@@ -158,21 +150,19 @@ test.describe('LunchBox Planner', () => {
 
     await page.getByPlaceholder('Ej: 25').fill('20')
     await page.getByPlaceholder('Ej: 120').fill('110')
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
-    // Verify profile exists
-    await expect(page.getByRole('heading', { name: 'Pedro' })).toBeVisible()
+    await expect(page.getByText('Pedro')).toBeVisible()
 
-    // Delete the profile (trash icon button)
     await page.getByRole('button', { name: 'Eliminar perfil' }).click()
 
-    // Verify profile is gone and empty state is shown
-    await expect(page.getByRole('heading', { name: 'Pedro' })).not.toBeVisible()
-    await expect(page.getByText('Comienza agregando un perfil')).toBeVisible()
+    await expect(page.getByText('Pedro')).not.toBeVisible()
+    await expect(page.getByText('Sin perfiles todavía')).toBeVisible()
   })
 
-  test('should show nutritional requirements based on profile', async ({ page }) => {
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+  test('should show nutritional requirements', async ({ page }) => {
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
     await page.getByPlaceholder('Ej: María').fill('Sofía')
 
     const birthDate = new Date()
@@ -181,21 +171,17 @@ test.describe('LunchBox Planner', () => {
 
     await page.getByPlaceholder('Ej: 25').fill('30')
     await page.getByPlaceholder('Ej: 120').fill('135')
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
-    // Click on profile card (using text locator for the name)
     await page.locator('h3:has-text("Sofía")').click()
 
-    // Check nutritional info is displayed
-    await expect(page.getByText('Requerimientos de Sofía')).toBeVisible()
-    // Check that the nutritional summary card is visible
-    await expect(page.locator('.grid.grid-cols-2')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Generar Menú Semanal' })).toBeVisible()
+    await expect(page.getByText('Menú de Sofía')).toBeVisible()
+    await expect(page.getByText('Requerimientos nutricionales')).toBeVisible()
   })
 
-  test('should allow regenerating menu', async ({ page }) => {
-    // Create, select profile
-    await page.getByRole('button', { name: 'Crear Primer Perfil' }).click()
+  test('should regenerate menu', async ({ page }) => {
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+    await page.getByRole('button', { name: /Crear primer perfil/i }).click()
     await page.getByPlaceholder('Ej: María').fill('Luis')
 
     const birthDate = new Date()
@@ -204,36 +190,45 @@ test.describe('LunchBox Planner', () => {
 
     await page.getByPlaceholder('Ej: 25').fill('26')
     await page.getByPlaceholder('Ej: 120').fill('122')
-    await page.getByRole('button', { name: 'Guardar Perfil' }).click()
+    await page.getByRole('button', { name: 'Guardar' }).click()
 
-    // Click on profile card
     await page.locator('h3:has-text("Luis")').click()
-
-    // Generate initial menu
-    await page.getByRole('button', { name: 'Generar Menú Semanal' }).click()
+    await page.getByRole('button', { name: /Generar menú semanal/i }).click()
     await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
 
-    // Click regenerate
-    await page.getByRole('button', { name: 'Regenerar' }).click()
+    await page.getByRole('button', { name: /Regenerar/i }).click()
 
-    // Menu should still be visible after regeneration (wait for loading to complete)
     await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
   })
 
-  test('should have disabled menu and shopping tabs without profile/menu', async ({ page }) => {
-    // Menu tab should be disabled without selecting a profile
-    const menuTab = page.getByRole('button', { name: 'Menú Semanal' })
-    await expect(menuTab).toHaveClass(/opacity-50/)
+  test('should have disabled nav tabs without profile/menu', async ({ page }) => {
+    await page.getByRole('button', { name: /Comenzar ahora/i }).click()
+
+    const menuTab = page.getByRole('button', { name: /Menú/i })
+    await expect(menuTab).toHaveClass(/opacity-40/)
     await expect(menuTab).toBeDisabled()
 
-    // Shopping tab should be disabled without a menu
-    const shoppingTab = page.getByRole('button', { name: 'Lista de Compras' })
-    await expect(shoppingTab).toHaveClass(/opacity-50/)
+    const shoppingTab = page.getByRole('button', { name: /Compras/i })
+    await expect(shoppingTab).toHaveClass(/opacity-40/)
     await expect(shoppingTab).toBeDisabled()
   })
 
-  test('should display footer with data policy info', async ({ page }) => {
-    await expect(page.getByText(/Todos tus datos se guardan localmente/)).toBeVisible()
-    await expect(page.getByText(/FAO\/OMS e ICBF Colombia/)).toBeVisible()
+  test('should toggle dark mode', async ({ page }) => {
+    // Start in light mode
+    await expect(page.locator('html')).not.toHaveClass(/dark/)
+
+    // Toggle to dark
+    await page.getByRole('button', { name: /modo oscuro/i }).click()
+    await expect(page.locator('html')).toHaveClass(/dark/)
+
+    // Toggle back to light
+    await page.getByRole('button', { name: /modo claro/i }).click()
+    await expect(page.locator('html')).not.toHaveClass(/dark/)
+  })
+
+  test('should display trust section with sources', async ({ page }) => {
+    await expect(page.getByText(/FAO\/OMS/)).toBeVisible()
+    await expect(page.getByText(/ICBF Colombia/)).toBeVisible()
+    await expect(page.getByText(/USDA/)).toBeVisible()
   })
 })
