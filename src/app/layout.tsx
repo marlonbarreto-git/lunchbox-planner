@@ -6,10 +6,17 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'LunchBox Planner - Menús escolares nutritivos',
-  description: 'Planifica almuerzos escolares nutritivos y deliciosos para tus hijos. Recetas aptas para microondas, listas de compras automáticas y cálculo nutricional personalizado.',
-  keywords: ['almuerzo escolar', 'menú niños', 'nutrición infantil', 'lonchera', 'Colombia'],
+  description: 'Planifica comidas nutritivas y deliciosas para tus hijos. Recetas aptas para microondas, listas de compras automáticas y cálculo nutricional personalizado.',
+  keywords: ['almuerzo escolar', 'menú niños', 'nutrición infantil', 'lonchera', 'Colombia', 'desayuno', 'cena'],
   authors: [{ name: 'LunchBox Planner' }],
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
 }
 
 export const viewport: Viewport = {
@@ -25,9 +32,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <head>
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-      </head>
       <body className={inter.className}>
         {children}
         <ServiceWorkerRegistration />

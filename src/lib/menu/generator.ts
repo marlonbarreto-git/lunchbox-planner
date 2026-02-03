@@ -1,4 +1,5 @@
-import type { ChildProfile, Recipe, MenuItem, WeeklyMenu, RecipeNutrition } from '@/types'
+import type { ChildProfile, Recipe, MenuItem, WeeklyMenu, RecipeNutrition, MealType } from '@/types'
+import { MEAL_CALORIE_PERCENTAGES } from '@/types'
 import { getAllRecipes, filterRecipesByAllergies, filterRecipesByMicrowaveRating } from '@/lib/recipes/recipes'
 import { calculateNutritionalRequirements } from '@/lib/nutrition/calculator'
 
@@ -98,6 +99,14 @@ function adjustPortions(recipe: Recipe, targetCalories: number): { portions: num
   }
 }
 
+function getRecipesForMealType(recipes: Recipe[], mealType: MealType): Recipe[] {
+  return recipes.filter(r => r.mealTypes.includes(mealType))
+}
+
+function getTargetCaloriesForMeal(dailyCalories: number, mealType: MealType): number {
+  return Math.round(dailyCalories * MEAL_CALORIE_PERCENTAGES[mealType])
+}
+
 export function generateDailyMenu(profile: ChildProfile, date: string): MenuItem {
   const requirements = calculateNutritionalRequirements(profile)
   const targetCalories = requirements.lunchCalories
@@ -112,57 +121,70 @@ export function generateDailyMenu(profile: ChildProfile, date: string): MenuItem
 
   return {
     date,
+    mealType: 'lunch',
     recipe,
     portions,
     adjustedNutrition: nutrition,
   }
 }
 
-export function generateWeeklyMenu(profile: ChildProfile, weekStartDate: string): WeeklyMenu {
+export function generateWeeklyMenu(
+  profile: ChildProfile,
+  weekStartDate: string,
+  selectedMealTypes: MealType[] = ['lunch']
+): WeeklyMenu {
   const requirements = calculateNutritionalRequirements(profile)
-  const targetCalories = requirements.lunchCalories
 
-  let recipes = getAllRecipes()
-  recipes = filterRecipesByAllergies(recipes, profile.allergies)
-  recipes = filterRecipesByMicrowaveRating(recipes, 3)
-  recipes = recipes.filter(r => r.category === 'main')
-  recipes = shuffleArray(recipes)
+  let allRecipes = getAllRecipes()
+  allRecipes = filterRecipesByAllergies(allRecipes, profile.allergies)
+  allRecipes = filterRecipesByMicrowaveRating(allRecipes, 3)
+  allRecipes = shuffleArray(allRecipes)
 
   const items: MenuItem[] = []
-  const usedRecipeIds = new Set<string>()
-  const usedCuisines = new Set<string>()
-  const usedProteins = new Set<string>()
+  const usedRecipeIdsForWeek = new Set<string>()
+  const usedCuisinesForWeek = new Set<string>()
+  const usedProteinsForWeek = new Set<string>()
   const startDate = new Date(weekStartDate)
 
-  for (let i = 0; i < 5; i++) {
+  for (let dayIndex = 0; dayIndex < 5; dayIndex++) {
     const date = new Date(startDate)
-    date.setDate(startDate.getDate() + i)
+    date.setDate(startDate.getDate() + dayIndex)
     const dateStr = date.toISOString().split('T')[0]
 
-    const recipe = selectBestRecipe(
-      recipes,
-      targetCalories,
-      profile.preferences,
-      usedRecipeIds,
-      usedCuisines,
-      usedProteins
-    )
-    usedRecipeIds.add(recipe.id)
-    usedCuisines.add(recipe.cuisine)
+    for (const mealType of selectedMealTypes) {
+      const targetCalories = getTargetCaloriesForMeal(requirements.dailyCalories, mealType)
+      const recipesForMeal = getRecipesForMealType(allRecipes, mealType)
 
-    const mainProtein = recipe.tags.find(t =>
-      ['pollo', 'res', 'cerdo', 'pescado', 'huevo', 'legumbres', 'atún', 'camarones'].includes(t.toLowerCase())
-    )
-    if (mainProtein) usedProteins.add(mainProtein.toLowerCase())
+      if (recipesForMeal.length === 0) {
+        continue
+      }
 
-    const { portions, nutrition } = adjustPortions(recipe, targetCalories)
+      const recipe = selectBestRecipe(
+        recipesForMeal,
+        targetCalories,
+        profile.preferences,
+        usedRecipeIdsForWeek,
+        usedCuisinesForWeek,
+        usedProteinsForWeek
+      )
+      usedRecipeIdsForWeek.add(recipe.id)
+      usedCuisinesForWeek.add(recipe.cuisine)
 
-    items.push({
-      date: dateStr,
-      recipe,
-      portions,
-      adjustedNutrition: nutrition,
-    })
+      const mainProtein = recipe.tags.find(t =>
+        ['pollo', 'res', 'cerdo', 'pescado', 'huevo', 'legumbres', 'atún', 'camarones'].includes(t.toLowerCase())
+      )
+      if (mainProtein) usedProteinsForWeek.add(mainProtein.toLowerCase())
+
+      const { portions, nutrition } = adjustPortions(recipe, targetCalories)
+
+      items.push({
+        date: dateStr,
+        mealType,
+        recipe,
+        portions,
+        adjustedNutrition: nutrition,
+      })
+    }
   }
 
   const totalNutrition = items.reduce(
@@ -181,6 +203,7 @@ export function generateWeeklyMenu(profile: ChildProfile, weekStartDate: string)
     id: generateId(),
     childId: profile.id,
     weekStartDate,
+    selectedMealTypes,
     items,
     totalNutrition,
     createdAt: new Date().toISOString(),
@@ -214,18 +237,20 @@ export function hasNoRepeatsInWeek(recipes: Recipe[]): boolean {
   return new Set(ids).size === ids.length
 }
 
-export function generateMonthlyMenu(profile: ChildProfile, monthStartDate: string): WeeklyMenu {
+export function generateMonthlyMenu(
+  profile: ChildProfile,
+  monthStartDate: string,
+  selectedMealTypes: MealType[] = ['lunch']
+): WeeklyMenu {
   const requirements = calculateNutritionalRequirements(profile)
-  const targetCalories = requirements.lunchCalories
 
-  let recipes = getAllRecipes()
-  recipes = filterRecipesByAllergies(recipes, profile.allergies)
-  recipes = filterRecipesByMicrowaveRating(recipes, 3)
-  recipes = recipes.filter(r => r.category === 'main')
-  recipes = shuffleArray(recipes)
+  let allRecipes = getAllRecipes()
+  allRecipes = filterRecipesByAllergies(allRecipes, profile.allergies)
+  allRecipes = filterRecipesByMicrowaveRating(allRecipes, 3)
+  allRecipes = shuffleArray(allRecipes)
 
   const items: MenuItem[] = []
-  const usedRecipeIds = new Set<string>()
+  const usedRecipeIdsForMonth = new Set<string>()
   const startDate = new Date(monthStartDate)
 
   // Find first Monday
@@ -236,38 +261,48 @@ export function generateMonthlyMenu(profile: ChildProfile, monthStartDate: strin
 
   // Generate 4 weeks (20 school days)
   for (let week = 0; week < 4; week++) {
-    const usedCuisines = new Set<string>()
-    const usedProteins = new Set<string>()
+    const usedCuisinesForWeek = new Set<string>()
+    const usedProteinsForWeek = new Set<string>()
 
     for (let day = 0; day < 5; day++) {
       const date = new Date(firstMonday)
       date.setDate(firstMonday.getDate() + (week * 7) + day)
       const dateStr = date.toISOString().split('T')[0]
 
-      const recipe = selectBestRecipe(
-        recipes,
-        targetCalories,
-        profile.preferences,
-        usedRecipeIds,
-        usedCuisines,
-        usedProteins
-      )
-      usedRecipeIds.add(recipe.id)
-      usedCuisines.add(recipe.cuisine)
+      for (const mealType of selectedMealTypes) {
+        const targetCalories = getTargetCaloriesForMeal(requirements.dailyCalories, mealType)
+        const recipesForMeal = getRecipesForMealType(allRecipes, mealType)
 
-      const mainProtein = recipe.tags.find(t =>
-        ['pollo', 'res', 'cerdo', 'pescado', 'huevo', 'legumbres', 'atún', 'camarones'].includes(t.toLowerCase())
-      )
-      if (mainProtein) usedProteins.add(mainProtein.toLowerCase())
+        if (recipesForMeal.length === 0) {
+          continue
+        }
 
-      const { portions, nutrition } = adjustPortions(recipe, targetCalories)
+        const recipe = selectBestRecipe(
+          recipesForMeal,
+          targetCalories,
+          profile.preferences,
+          usedRecipeIdsForMonth,
+          usedCuisinesForWeek,
+          usedProteinsForWeek
+        )
+        usedRecipeIdsForMonth.add(recipe.id)
+        usedCuisinesForWeek.add(recipe.cuisine)
 
-      items.push({
-        date: dateStr,
-        recipe,
-        portions,
-        adjustedNutrition: nutrition,
-      })
+        const mainProtein = recipe.tags.find(t =>
+          ['pollo', 'res', 'cerdo', 'pescado', 'huevo', 'legumbres', 'atún', 'camarones'].includes(t.toLowerCase())
+        )
+        if (mainProtein) usedProteinsForWeek.add(mainProtein.toLowerCase())
+
+        const { portions, nutrition } = adjustPortions(recipe, targetCalories)
+
+        items.push({
+          date: dateStr,
+          mealType,
+          recipe,
+          portions,
+          adjustedNutrition: nutrition,
+        })
+      }
     }
   }
 
@@ -287,6 +322,7 @@ export function generateMonthlyMenu(profile: ChildProfile, monthStartDate: strin
     id: generateId(),
     childId: profile.id,
     weekStartDate: monthStartDate,
+    selectedMealTypes,
     items,
     totalNutrition,
     createdAt: new Date().toISOString(),
@@ -296,29 +332,44 @@ export function generateMonthlyMenu(profile: ChildProfile, monthStartDate: strin
 export function replaceMealInMenu(
   menu: WeeklyMenu,
   dateToReplace: string,
-  profile: ChildProfile
+  profile: ChildProfile,
+  mealTypeToReplace?: MealType
 ): WeeklyMenu {
   const requirements = calculateNutritionalRequirements(profile)
-  const targetCalories = requirements.lunchCalories
 
   let recipes = getAllRecipes()
   recipes = filterRecipesByAllergies(recipes, profile.allergies)
   recipes = filterRecipesByMicrowaveRating(recipes, 3)
-  recipes = recipes.filter(r => r.category === 'main')
   recipes = shuffleArray(recipes)
 
   const usedRecipeIds = new Set(menu.items.map(item => item.recipe.id))
-  const itemIndex = menu.items.findIndex(item => item.date === dateToReplace)
+
+  // Find the item to replace
+  const itemIndex = menu.items.findIndex(item =>
+    item.date === dateToReplace &&
+    (mealTypeToReplace === undefined || item.mealType === mealTypeToReplace)
+  )
 
   if (itemIndex === -1) {
     return menu
   }
 
+  const itemToReplace = menu.items[itemIndex]
+  const mealType = itemToReplace.mealType
+  const targetCalories = getTargetCaloriesForMeal(requirements.dailyCalories, mealType)
+
   // Remove current recipe from exclusions so we can pick a different one
-  usedRecipeIds.delete(menu.items[itemIndex].recipe.id)
+  usedRecipeIds.delete(itemToReplace.recipe.id)
+
+  // Get recipes suitable for this meal type
+  const recipesForMeal = getRecipesForMealType(recipes, mealType)
+
+  if (recipesForMeal.length === 0) {
+    return menu
+  }
 
   const recipe = selectBestRecipe(
-    recipes,
+    recipesForMeal,
     targetCalories,
     profile.preferences,
     usedRecipeIds
@@ -329,6 +380,7 @@ export function replaceMealInMenu(
   const newItems = [...menu.items]
   newItems[itemIndex] = {
     date: dateToReplace,
+    mealType,
     recipe,
     portions,
     adjustedNutrition: nutrition,

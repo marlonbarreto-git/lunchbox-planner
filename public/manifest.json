@@ -1,24 +1,24 @@
 {
   "name": "LunchBox Planner",
   "short_name": "LunchBox",
-  "description": "Planifica almuerzos escolares nutritivos y deliciosos para tus hijos",
+  "description": "Planifica comidas nutritivas y deliciosas para tus hijos",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#22c55e",
+  "background_color": "#18181b",
+  "theme_color": "#18181b",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "categories": ["food", "health", "lifestyle"],

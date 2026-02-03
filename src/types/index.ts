@@ -2,6 +2,24 @@ export type Sex = 'male' | 'female'
 
 export type ActivityLevel = 'light' | 'moderate' | 'heavy'
 
+export type MealType = 'breakfast' | 'morningSnack' | 'lunch' | 'afternoonSnack' | 'dinner'
+
+export const MEAL_TYPE_LABELS: Record<MealType, string> = {
+  breakfast: 'Desayuno',
+  morningSnack: 'Medias nueves',
+  lunch: 'Almuerzo',
+  afternoonSnack: 'Onces',
+  dinner: 'Cena',
+}
+
+export const MEAL_CALORIE_PERCENTAGES: Record<MealType, number> = {
+  breakfast: 0.25,
+  morningSnack: 0.10,
+  lunch: 0.35,
+  afternoonSnack: 0.10,
+  dinner: 0.20,
+}
+
 export interface ChildProfile {
   id: string
   name: string
@@ -47,7 +65,8 @@ export interface Recipe {
   id: string
   name: string
   description: string
-  category: 'main' | 'side' | 'soup' | 'dessert' | 'snack'
+  category: 'main' | 'side' | 'soup' | 'dessert' | 'snack' | 'breakfast' | 'beverage'
+  mealTypes: MealType[]
   cuisine: 'colombian' | 'latin' | 'international'
   microwaveRating: 1 | 2 | 3 | 4 | 5
   transportHours: number
@@ -72,6 +91,7 @@ export interface RecipeIngredient {
 
 export interface MenuItem {
   date: string
+  mealType: MealType
   recipe: Recipe
   portions: number
   adjustedNutrition: RecipeNutrition
@@ -81,6 +101,7 @@ export interface WeeklyMenu {
   id: string
   childId: string
   weekStartDate: string
+  selectedMealTypes: MealType[]
   items: MenuItem[]
   totalNutrition: RecipeNutrition
   createdAt: string
