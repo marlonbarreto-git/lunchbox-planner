@@ -57,118 +57,135 @@ export default function Home() {
 
   if (view === 'home') {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
-        <Header darkMode={darkMode} setDarkMode={setDarkMode} />
-
-        <main className="max-w-3xl mx-auto px-6 py-16">
-          {/* Hero */}
-          <div className="text-center mb-20">
-            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
-              🍱 LunchBox Planner
-            </h1>
-            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              Planifica almuerzos escolares nutritivos para tus hijos.
-              <span className="block mt-2">Sin complicaciones. Sin registro.</span>
-            </p>
-          </div>
-
-          {/* Feature Cards */}
-          <div className="grid md:grid-cols-2 gap-6 mb-16">
-            <FeatureCard
-              emoji="👶"
-              title="Perfiles personalizados"
-              description="Crea perfiles con edad, peso y alergias. Calculamos los requerimientos nutricionales automáticamente."
-            />
-            <FeatureCard
-              emoji="📅"
-              title="Menús semanales"
-              description="Genera menús de lunes a viernes. Sin repeticiones, respetando alergias al 100%."
-            />
-            <FeatureCard
-              emoji="🍲"
-              title="155+ recetas"
-              description="Platos colombianos, latinos e internacionales. Todos aptos para microondas."
-            />
-            <FeatureCard
-              emoji="🛒"
-              title="Lista de compras"
-              description="Ingredientes consolidados y organizados por categoría. Lista para el supermercado."
-            />
-          </div>
-
-          {/* CTA */}
-          <div className="text-center">
+      <div className="min-h-screen bg-white dark:bg-zinc-950 transition-colors">
+        <header className="fixed top-0 w-full bg-white/80 dark:bg-zinc-950/80 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-900 z-50">
+          <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">LunchBox</span>
             <button
-              onClick={() => setView('profiles')}
-              className="inline-flex items-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-full text-lg font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+              onClick={() => setDarkMode(!darkMode)}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              aria-label={darkMode ? 'Activar modo claro' : 'Activar modo oscuro'}
             >
-              Comenzar ahora
-              <span>→</span>
+              {darkMode ? '☀️' : '🌙'}
             </button>
-            <p className="mt-4 text-sm text-slate-500 dark:text-slate-500">
-              100% gratis • Datos locales • Sin registro
-            </p>
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-6 pt-32 pb-20">
+          <h1 className="text-4xl sm:text-5xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+            Planifica almuerzos<br />escolares nutritivos
+          </h1>
+
+          <p className="mt-6 text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-lg">
+            Crea menús semanales personalizados para tus hijos basados en sus necesidades nutricionales.
+            Sin registro. Sin complicaciones.
+          </p>
+
+          <button
+            onClick={() => setView('profiles')}
+            className="mt-10 inline-flex items-center gap-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+          >
+            Comenzar ahora
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          <div className="mt-20 grid gap-8">
+            <Feature
+              icon="👶"
+              title="Perfiles personalizados"
+              description="Registra edad, peso, altura y alergias. Los requerimientos nutricionales se calculan automáticamente según estándares OMS."
+            />
+            <Feature
+              icon="📅"
+              title="Menús semanales"
+              description="Genera menús de lunes a viernes sin repeticiones. Todas las recetas respetan las alergias registradas."
+            />
+            <Feature
+              icon="🍲"
+              title="155+ recetas"
+              description="Platos colombianos, latinos e internacionales. Todas evaluadas para transporte y recalentamiento en microondas."
+            />
+            <Feature
+              icon="🛒"
+              title="Lista de compras"
+              description="Ingredientes consolidados por categoría, listos para llevar al supermercado."
+            />
           </div>
 
-          {/* Trust */}
-          <div className="mt-20 pt-12 border-t border-slate-200 dark:border-slate-800">
-            <p className="text-center text-sm text-slate-500 dark:text-slate-500 mb-4">
-              Basado en guías nutricionales de
+          <hr className="my-16 border-zinc-200 dark:border-zinc-800" />
+
+          <div className="text-sm text-zinc-500 dark:text-zinc-500">
+            <p>Basado en guías nutricionales de:</p>
+            <p className="mt-2 text-zinc-400 dark:text-zinc-600">
+              FAO/OMS · ICBF Colombia · USDA
             </p>
-            <div className="flex flex-wrap justify-center gap-6 text-slate-400 dark:text-slate-600 text-sm">
-              <span>FAO/OMS</span>
-              <span>•</span>
-              <span>ICBF Colombia</span>
-              <span>•</span>
-              <span>USDA</span>
-            </div>
           </div>
         </main>
 
-        <Footer />
+        <footer className="border-t border-zinc-100 dark:border-zinc-900 py-8">
+          <div className="max-w-2xl mx-auto px-6 text-center text-sm text-zinc-500 dark:text-zinc-500">
+            <p>Tus datos se guardan localmente en tu dispositivo.</p>
+          </div>
+        </footer>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
-      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors">
+      <header className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
+          <button
+            onClick={() => setView('home')}
+            className="font-semibold text-zinc-900 dark:text-zinc-100 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+          >
+            LunchBox
+          </button>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            aria-label={darkMode ? 'Activar modo claro' : 'Activar modo oscuro'}
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+        </div>
+      </header>
 
-      {/* Navigation */}
-      <nav className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="flex items-center gap-1 -mb-px overflow-x-auto">
+      <nav className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto px-6">
+          <div className="flex gap-6">
             <NavTab active={view === 'profiles'} onClick={() => setView('profiles')}>
-              👶 Perfiles
+              Perfiles
             </NavTab>
             <NavTab
               active={view === 'menu'}
               onClick={() => selectedProfile && setView('menu')}
               disabled={!selectedProfile}
             >
-              📅 Menú
+              Menú
             </NavTab>
             <NavTab
               active={view === 'shopping'}
               onClick={goToShopping}
               disabled={!currentMenu}
             >
-              🛒 Compras
+              Compras
             </NavTab>
           </div>
         </div>
       </nav>
 
-      {/* Content */}
-      <main className="max-w-3xl mx-auto px-6 py-10">
+      <main className="max-w-2xl mx-auto px-6 py-10">
         {view === 'profiles' && (
           <div>
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                   Perfiles
                 </h2>
-                <p className="text-slate-600 dark:text-slate-400 mt-1">
+                <p className="text-zinc-600 dark:text-zinc-400 mt-1">
                   {profiles.length === 0
                     ? 'Agrega el primer perfil para comenzar'
                     : `${profiles.length} perfil${profiles.length > 1 ? 'es' : ''} creado${profiles.length > 1 ? 's' : ''}`
@@ -178,7 +195,7 @@ export default function Home() {
               {profiles.length > 0 && !showForm && (
                 <button
                   onClick={() => setShowForm(true)}
-                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium"
+                  className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
                 >
                   + Agregar
                 </button>
@@ -186,8 +203,8 @@ export default function Home() {
             </div>
 
             {showForm ? (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-6">
                   Nuevo perfil
                 </h3>
                 <ProfileForm
@@ -196,17 +213,17 @@ export default function Home() {
                 />
               </div>
             ) : profiles.length === 0 ? (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center border border-slate-200 dark:border-slate-700">
-                <div className="text-6xl mb-4">👶</div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              <div className="bg-white dark:bg-zinc-900 rounded-xl p-12 text-center border border-zinc-200 dark:border-zinc-800">
+                <div className="text-5xl mb-4">👶</div>
+                <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
                   Sin perfiles todavía
                 </h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
+                <p className="text-zinc-600 dark:text-zinc-400 mb-6 max-w-sm mx-auto">
                   Crea un perfil con la edad, peso y alergias de tu hijo para generar menús personalizados.
                 </p>
                 <button
                   onClick={() => setShowForm(true)}
-                  className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-full font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+                  className="bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-5 py-2.5 rounded-lg font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
                 >
                   Crear primer perfil
                 </button>
@@ -236,55 +253,29 @@ export default function Home() {
         )}
       </main>
 
-      <Footer />
+      <footer className="py-8 mt-auto border-t border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-2xl mx-auto px-6 text-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-500">
+            Datos guardados localmente
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }
 
-function Header({ darkMode, setDarkMode }: { darkMode: boolean; setDarkMode: (v: boolean) => void }) {
+function Feature({ icon, title, description }: { icon: string; title: string; description: string }) {
   return (
-    <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-      <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="/" className="text-lg font-bold text-slate-900 dark:text-white">
-          🍱 LunchBox
-        </a>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-          aria-label={darkMode ? 'Activar modo claro' : 'Activar modo oscuro'}
-        >
-          {darkMode ? '☀️' : '🌙'}
-        </button>
-      </div>
-    </header>
-  )
-}
-
-function Footer() {
-  return (
-    <footer className="py-8 mt-auto">
-      <div className="max-w-3xl mx-auto px-6 text-center">
-        <p className="text-sm text-slate-500 dark:text-slate-500">
-          Tus datos se guardan localmente en tu dispositivo.
-        </p>
-        <p className="text-sm text-slate-400 dark:text-slate-600 mt-2">
-          Hecho con ❤️ para padres ocupados
+    <div className="flex gap-4">
+      <span className="text-2xl flex-shrink-0">{icon}</span>
+      <div>
+        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+          {title}
+        </h3>
+        <p className="mt-1 text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          {description}
         </p>
       </div>
-    </footer>
-  )
-}
-
-function FeatureCard({ emoji, title, description }: { emoji: string; title: string; description: string }) {
-  return (
-    <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
-      <div className="text-4xl mb-4">{emoji}</div>
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-        {title}
-      </h3>
-      <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-        {description}
-      </p>
     </div>
   )
 }
@@ -305,10 +296,10 @@ function NavTab({
       onClick={onClick}
       disabled={disabled}
       className={`
-        px-4 py-4 font-medium text-sm whitespace-nowrap transition-colors border-b-2
+        py-3 text-sm font-medium border-b-2 transition-colors
         ${active
-          ? 'text-slate-900 dark:text-white border-slate-900 dark:border-white'
-          : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-300'
+          ? 'text-zinc-900 dark:text-zinc-100 border-zinc-900 dark:border-zinc-100'
+          : 'text-zinc-500 dark:text-zinc-500 border-transparent hover:text-zinc-700 dark:hover:text-zinc-300'
         }
         ${disabled ? 'opacity-40 cursor-not-allowed' : ''}
       `}

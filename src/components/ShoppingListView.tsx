@@ -34,34 +34,32 @@ export function ShoppingListView({ menu }: ShoppingListViewProps) {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
             Lista de compras
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-zinc-600 dark:text-zinc-400 mt-1">
             {shoppingList.items.length} ingredientes para {menu.items.length} comidas
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <button
             onClick={handleCopy}
-            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
           >
-            📋 Copiar
+            Copiar
           </button>
           <button
             onClick={handlePrint}
-            className="px-4 py-2 text-sm font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors print:hidden"
+            className="px-4 py-2 text-sm font-medium text-white dark:text-zinc-900 bg-zinc-900 dark:bg-zinc-100 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors print:hidden"
           >
-            🖨️ Imprimir
+            Imprimir
           </button>
         </div>
       </div>
 
-      {/* Categories */}
-      <div className="space-y-6 print:space-y-4">
+      <div className="space-y-4 print:space-y-3">
         {Object.entries(grouped).map(([category, items]) => (
           <CategorySection
             key={category}
@@ -71,7 +69,6 @@ export function ShoppingListView({ menu }: ShoppingListViewProps) {
         ))}
       </div>
 
-      {/* Print Styles */}
       <style jsx global>{`
         @media print {
           body * {
@@ -105,13 +102,13 @@ function CategorySection({
   const info = CATEGORY_INFO[category] || { name: category, emoji: '📋' }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700">
+    <div className="bg-white dark:bg-zinc-900 rounded-xl p-5 border border-zinc-200 dark:border-zinc-800">
       <div className="flex items-center gap-3 mb-4">
-        <span className="text-2xl">{info.emoji}</span>
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+        <span className="text-xl">{info.emoji}</span>
+        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
           {info.name}
         </h3>
-        <span className="text-sm text-slate-500 dark:text-slate-400">
+        <span className="text-sm text-zinc-500 dark:text-zinc-400">
           ({items.length})
         </span>
       </div>
@@ -124,19 +121,19 @@ function CategorySection({
           >
             <input
               type="checkbox"
-              className="mt-1 w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white focus:ring-slate-900 dark:focus:ring-white bg-slate-50 dark:bg-slate-700"
+              className="mt-1 w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100 focus:ring-zinc-900 dark:focus:ring-zinc-100 bg-zinc-50 dark:bg-zinc-800"
             />
             <div className="flex-1">
               <div className="flex items-baseline justify-between">
-                <span className="font-medium text-slate-900 dark:text-white">
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">
                   {item.ingredient}
                 </span>
-                <span className="text-slate-600 dark:text-slate-400 tabular-nums">
+                <span className="text-zinc-600 dark:text-zinc-400 tabular-nums text-sm">
                   {formatAmount(item.totalAmount)} {item.unit}
                 </span>
               </div>
-              <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                {item.recipes.join(' • ')}
+              <div className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                {item.recipes.join(' · ')}
               </div>
             </div>
           </li>
@@ -154,7 +151,7 @@ function formatAmount(amount: number): string {
 }
 
 function formatListForCopy(grouped: Record<string, ShoppingListItem[]>): string {
-  let text = '🛒 LISTA DE COMPRAS\n'
+  let text = 'LISTA DE COMPRAS\n'
   text += '━'.repeat(30) + '\n\n'
 
   Object.entries(grouped).forEach(([category, items]) => {

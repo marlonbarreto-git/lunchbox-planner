@@ -6,15 +6,15 @@ test.describe('LunchBox Planner', () => {
   })
 
   test('should display landing page with feature cards', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /LunchBox Planner/i })).toBeVisible()
-    await expect(page.getByText(/Planifica almuerzos escolares/)).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Planifica almuerzos/i })).toBeVisible()
+    await expect(page.getByText(/Sin registro/)).toBeVisible()
     await expect(page.getByRole('button', { name: /Comenzar ahora/i })).toBeVisible()
 
     // Feature cards
-    await expect(page.getByText('Perfiles personalizados')).toBeVisible()
-    await expect(page.getByText('Menús semanales')).toBeVisible()
-    await expect(page.getByText('155+ recetas')).toBeVisible()
-    await expect(page.getByText('Lista de compras')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Perfiles personalizados' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Menús semanales' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '155+ recetas' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Lista de compras' })).toBeVisible()
   })
 
   test('should navigate to profiles view when clicking start button', async ({ page }) => {
@@ -119,7 +119,7 @@ test.describe('LunchBox Planner', () => {
     await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
 
     // Navigate to shopping
-    await page.getByRole('button', { name: /Compras/i }).click()
+    await page.getByRole('button', { name: 'Compras' }).click()
 
     await expect(page.getByRole('heading', { name: 'Lista de compras' })).toBeVisible()
     await expect(page.getByText(/ingredientes para \d+ comidas/)).toBeVisible()
@@ -135,7 +135,7 @@ test.describe('LunchBox Planner', () => {
     const glutenButton = page.getByRole('button', { name: 'gluten' })
     await expect(glutenButton).toHaveClass(/ring-2/)
 
-    await page.getByRole('button', { name: 'gluten' }).click()
+    await glutenButton.click()
     await expect(glutenButton).not.toHaveClass(/ring-2/)
   })
 
@@ -204,11 +204,11 @@ test.describe('LunchBox Planner', () => {
   test('should have disabled nav tabs without profile/menu', async ({ page }) => {
     await page.getByRole('button', { name: /Comenzar ahora/i }).click()
 
-    const menuTab = page.getByRole('button', { name: /Menú/i })
+    const menuTab = page.getByRole('button', { name: 'Menú' })
     await expect(menuTab).toHaveClass(/opacity-40/)
     await expect(menuTab).toBeDisabled()
 
-    const shoppingTab = page.getByRole('button', { name: /Compras/i })
+    const shoppingTab = page.getByRole('button', { name: 'Compras' })
     await expect(shoppingTab).toHaveClass(/opacity-40/)
     await expect(shoppingTab).toBeDisabled()
   })

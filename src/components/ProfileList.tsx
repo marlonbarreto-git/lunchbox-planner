@@ -50,26 +50,26 @@ function ProfileCard({
   return (
     <div
       className={`
-        bg-white dark:bg-slate-800 rounded-2xl p-5 cursor-pointer transition-all
+        bg-white dark:bg-zinc-900 rounded-xl p-5 cursor-pointer transition-all
         border-2
         ${isSelected
-          ? 'border-slate-900 dark:border-white shadow-md'
-          : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+          ? 'border-zinc-900 dark:border-zinc-100'
+          : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
         }
       `}
       onClick={onSelect}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <div className="text-4xl">
+          <div className="text-3xl">
             {profile.sex === 'female' ? '👧' : '👦'}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               {profile.name}
             </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              {age} años • {profile.weightKg} kg • {profile.heightCm} cm
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
+              {age} años · {profile.weightKg} kg · {profile.heightCm} cm
             </p>
           </div>
         </div>
@@ -79,7 +79,7 @@ function ProfileCard({
             e.stopPropagation()
             onDelete()
           }}
-          className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-2 -mr-2"
+          className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-2 -mr-2"
           title="Eliminar perfil"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,7 +93,7 @@ function ProfileCard({
           {profile.allergies.map((allergy) => (
             <span
               key={allergy}
-              className="px-2.5 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded-full"
+              className="px-2.5 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-medium rounded-full"
             >
               {allergy}
             </span>
@@ -105,17 +105,17 @@ function ProfileCard({
         <span className={`
           px-3 py-1 text-xs font-medium rounded-full
           ${profile.activityLevel === 'light'
-            ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+            ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
             : profile.activityLevel === 'moderate'
-            ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-            : 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
+            ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+            : 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400'
           }
         `}>
           Actividad {profile.activityLevel === 'light' ? 'baja' : profile.activityLevel === 'moderate' ? 'moderada' : 'alta'}
         </span>
 
         {isSelected && (
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
             ✓ Seleccionado
           </span>
         )}
