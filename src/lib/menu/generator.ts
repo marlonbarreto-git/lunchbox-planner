@@ -213,3 +213,142 @@ export function hasNoRepeatsInWeek(recipes: Recipe[]): boolean {
   const ids = recipes.map(r => r.id)
   return new Set(ids).size === ids.length
 }
+
+export function generateMonthlyMenu(profile: ChildProfile, monthStartDate: string): WeeklyMenu {
+  const requirements = calculateNutritionalRequirements(profile)
+  const targetCalories = requirements.lunchCalories
+
+  let recipes = getAllRecipes()
+  recipes = filterRecipesByAllergies(recipes, profile.allergies)
+  recipes = filterRecipesByMicrowaveRating(recipes, 3)
+  recipes = recipes.filter(r => r.category === 'main')
+  recipes = shuffleArray(recipes)
+
+  const items: MenuItem[] = []
+  const usedRecipeIds = new Set<string>()
+  const startDate = new Date(monthStartDate)
+
+  // Find first Monday
+  const dayOfWeek = startDate.getDay()
+  const daysUntilMonday = dayOfWeek === 0 ? 1 : (dayOfWeek === 1 ? 0 : 8 - dayOfWeek)
+  const firstMonday = new Date(startDate)
+  firstMonday.setDate(startDate.getDate() + daysUntilMonday)
+
+  // Generate 4 weeks (20 school days)
+  for (let week = 0; week < 4; week++) {
+    const usedCuisines = new Set<string>()
+    const usedProteins = new Set<string>()
+
+    for (let day = 0; day < 5; day++) {
+      const date = new Date(firstMonday)
+      date.setDate(firstMonday.getDate() + (week * 7) + day)
+      const dateStr = date.toISOString().split('T')[0]
+
+      const recipe = selectBestRecipe(
+        recipes,
+        targetCalories,
+        profile.preferences,
+        usedRecipeIds,
+        usedCuisines,
+        usedProteins
+      )
+      usedRecipeIds.add(recipe.id)
+      usedCuisines.add(recipe.cuisine)
+
+      const mainProtein = recipe.tags.find(t =>
+        ['pollo', 'res', 'cerdo', 'pescado', 'huevo', 'legumbres', 'atún', 'camarones'].includes(t.toLowerCase())
+      )
+      if (mainProtein) usedProteins.add(mainProtein.toLowerCase())
+
+      const { portions, nutrition } = adjustPortions(recipe, targetCalories)
+
+      items.push({
+        date: dateStr,
+        recipe,
+        portions,
+        adjustedNutrition: nutrition,
+      })
+    }
+  }
+
+  const totalNutrition = items.reduce(
+    (total, item) => ({
+      calories: total.calories + item.adjustedNutrition.calories,
+      proteinGrams: total.proteinGrams + item.adjustedNutrition.proteinGrams,
+      carbsGrams: total.carbsGrams + item.adjustedNutrition.carbsGrams,
+      fatGrams: total.fatGrams + item.adjustedNutrition.fatGrams,
+      fiberGrams: total.fiberGrams + item.adjustedNutrition.fiberGrams,
+      sodiumMg: total.sodiumMg + item.adjustedNutrition.sodiumMg,
+    }),
+    { calories: 0, proteinGrams: 0, carbsGrams: 0, fatGrams: 0, fiberGrams: 0, sodiumMg: 0 }
+  )
+
+  return {
+    id: generateId(),
+    childId: profile.id,
+    weekStartDate: monthStartDate,
+    items,
+    totalNutrition,
+    createdAt: new Date().toISOString(),
+  }
+}
+
+export function replaceMealInMenu(
+  menu: WeeklyMenu,
+  dateToReplace: string,
+  profile: ChildProfile
+): WeeklyMenu {
+  const requirements = calculateNutritionalRequirements(profile)
+  const targetCalories = requirements.lunchCalories
+
+  let recipes = getAllRecipes()
+  recipes = filterRecipesByAllergies(recipes, profile.allergies)
+  recipes = filterRecipesByMicrowaveRating(recipes, 3)
+  recipes = recipes.filter(r => r.category === 'main')
+  recipes = shuffleArray(recipes)
+
+  const usedRecipeIds = new Set(menu.items.map(item => item.recipe.id))
+  const itemIndex = menu.items.findIndex(item => item.date === dateToReplace)
+
+  if (itemIndex === -1) {
+    return menu
+  }
+
+  // Remove current recipe from exclusions so we can pick a different one
+  usedRecipeIds.delete(menu.items[itemIndex].recipe.id)
+
+  const recipe = selectBestRecipe(
+    recipes,
+    targetCalories,
+    profile.preferences,
+    usedRecipeIds
+  )
+
+  const { portions, nutrition } = adjustPortions(recipe, targetCalories)
+
+  const newItems = [...menu.items]
+  newItems[itemIndex] = {
+    date: dateToReplace,
+    recipe,
+    portions,
+    adjustedNutrition: nutrition,
+  }
+
+  const totalNutrition = newItems.reduce(
+    (total, item) => ({
+      calories: total.calories + item.adjustedNutrition.calories,
+      proteinGrams: total.proteinGrams + item.adjustedNutrition.proteinGrams,
+      carbsGrams: total.carbsGrams + item.adjustedNutrition.carbsGrams,
+      fatGrams: total.fatGrams + item.adjustedNutrition.fatGrams,
+      fiberGrams: total.fiberGrams + item.adjustedNutrition.fiberGrams,
+      sodiumMg: total.sodiumMg + item.adjustedNutrition.sodiumMg,
+    }),
+    { calories: 0, proteinGrams: 0, carbsGrams: 0, fatGrams: 0, fiberGrams: 0, sodiumMg: 0 }
+  )
+
+  return {
+    ...menu,
+    items: newItems,
+    totalNutrition,
+  }
+}

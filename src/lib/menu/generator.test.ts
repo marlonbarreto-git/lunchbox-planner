@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import {
   generateDailyMenu,
   generateWeeklyMenu,
+  generateMonthlyMenu,
+  replaceMealInMenu,
   validateMenuNutrition,
   hasNoAllergensInMenu,
   hasNoRepeatsInWeek,
@@ -176,6 +178,91 @@ describe('Menu Generator', () => {
       const recipes = getAllRecipes().slice(0, 3)
       const withRepeat = [...recipes, recipes[0], recipes[1]]
       expect(hasNoRepeatsInWeek(withRepeat)).toBe(false)
+    })
+  })
+
+  describe('generateMonthlyMenu', () => {
+    it('should generate 20 menu items for 4 weeks of school days', () => {
+      const monthlyMenu = generateMonthlyMenu(mockProfile, '2025-02-01')
+
+      expect(monthlyMenu.items).toHaveLength(20)
+      expect(monthlyMenu.childId).toBe(mockProfile.id)
+    })
+
+    it('should not repeat main dishes in the entire month', () => {
+      const monthlyMenu = generateMonthlyMenu(mockProfile, '2025-02-01')
+
+      const recipeIds = monthlyMenu.items.map(item => item.recipe.id)
+      const uniqueIds = new Set(recipeIds)
+
+      expect(uniqueIds.size).toBe(20)
+    })
+
+    it('should never include recipes with allergens in monthly menu', () => {
+      const profileWithAllergies: ChildProfile = {
+        ...mockProfile,
+        allergies: ['gluten', 'lácteos'],
+      }
+
+      const monthlyMenu = generateMonthlyMenu(profileWithAllergies, '2025-02-01')
+
+      monthlyMenu.items.forEach(item => {
+        profileWithAllergies.allergies.forEach(allergy => {
+          expect(item.recipe.allergens.map(a => a.toLowerCase()))
+            .not.toContain(allergy.toLowerCase())
+        })
+      })
+    })
+
+    it('should calculate total monthly nutrition', () => {
+      const monthlyMenu = generateMonthlyMenu(mockProfile, '2025-02-01')
+
+      expect(monthlyMenu.totalNutrition).toBeDefined()
+      expect(monthlyMenu.totalNutrition.calories).toBeGreaterThan(0)
+      expect(monthlyMenu.totalNutrition.proteinGrams).toBeGreaterThan(0)
+    })
+  })
+
+  describe('replaceMealInMenu', () => {
+    it('should replace a specific meal in the menu', () => {
+      const weeklyMenu = generateWeeklyMenu(mockProfile, '2025-02-03')
+      const originalRecipe = weeklyMenu.items[2].recipe.id
+      const dateToReplace = weeklyMenu.items[2].date
+
+      const updatedMenu = replaceMealInMenu(weeklyMenu, dateToReplace, mockProfile)
+
+      expect(updatedMenu.items[2].recipe.id).not.toBe(originalRecipe)
+      expect(updatedMenu.items[2].date).toBe(dateToReplace)
+    })
+
+    it('should recalculate total nutrition after replacement', () => {
+      const weeklyMenu = generateWeeklyMenu(mockProfile, '2025-02-03')
+      const dateToReplace = weeklyMenu.items[0].date
+
+      const updatedMenu = replaceMealInMenu(weeklyMenu, dateToReplace, mockProfile)
+
+      expect(updatedMenu.totalNutrition).toBeDefined()
+      expect(updatedMenu.totalNutrition.calories).toBeGreaterThan(0)
+    })
+
+    it('should maintain unique recipes after replacement', () => {
+      const weeklyMenu = generateWeeklyMenu(mockProfile, '2025-02-03')
+      const dateToReplace = weeklyMenu.items[1].date
+
+      const updatedMenu = replaceMealInMenu(weeklyMenu, dateToReplace, mockProfile)
+
+      const recipeIds = updatedMenu.items.map(item => item.recipe.id)
+      const uniqueIds = new Set(recipeIds)
+
+      expect(uniqueIds.size).toBe(5)
+    })
+
+    it('should return original menu if date not found', () => {
+      const weeklyMenu = generateWeeklyMenu(mockProfile, '2025-02-03')
+
+      const updatedMenu = replaceMealInMenu(weeklyMenu, '2099-12-31', mockProfile)
+
+      expect(updatedMenu).toEqual(weeklyMenu)
     })
   })
 })

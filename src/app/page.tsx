@@ -177,7 +177,7 @@ export default function Home() {
             />
             <Feature
               icon="🍲"
-              title="155+ recetas"
+              title="275+ recetas"
               description="Platos colombianos, latinos e internacionales. Todas evaluadas para transporte y recalentamiento en microondas."
             />
             <Feature

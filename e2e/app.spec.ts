@@ -13,7 +13,7 @@ test.describe('LunchBox Planner', () => {
     // Feature cards
     await expect(page.getByRole('heading', { name: 'Perfiles personalizados' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Menús semanales' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: '155+ recetas' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '275+ recetas' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Lista de compras' })).toBeVisible()
   })
 
@@ -118,8 +118,8 @@ test.describe('LunchBox Planner', () => {
     await page.getByRole('button', { name: /Generar menú semanal/i }).click()
     await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
 
-    // Navigate to shopping
-    await page.getByRole('button', { name: 'Compras' }).click()
+    // Navigate to shopping via nav tab
+    await page.getByRole('button', { name: 'Compras', exact: true }).click()
 
     await expect(page.getByRole('heading', { name: 'Lista de compras' })).toBeVisible()
     await expect(page.getByText(/ingredientes para \d+ comidas/)).toBeVisible()
@@ -196,7 +196,7 @@ test.describe('LunchBox Planner', () => {
     await page.getByRole('button', { name: /Generar menú semanal/i }).click()
     await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
 
-    await page.getByRole('button', { name: /Regenerar/i }).click()
+    await page.getByRole('button', { name: /Semanal/i }).click()
 
     await expect(page.getByText('Lunes')).toBeVisible({ timeout: 5000 })
   })
