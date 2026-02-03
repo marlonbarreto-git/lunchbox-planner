@@ -21,7 +21,9 @@ function selectBestRecipe(
   candidates: Recipe[],
   targetCalories: number,
   preferences: { likes: string[]; dislikes: string[] },
-  excludeIds: Set<string>
+  excludeIds: Set<string>,
+  usedCuisines: Set<string> = new Set(),
+  usedProteins: Set<string> = new Set()
 ): Recipe {
   const available = candidates.filter(r => !excludeIds.has(r.id))
 
@@ -32,38 +34,46 @@ function selectBestRecipe(
   const scored = available.map(recipe => {
     let score = 0
 
-    // Microwave rating (higher is better)
-    score += recipe.microwaveRating * 10
+    // Base score from quality attributes (reduced weight)
+    score += recipe.microwaveRating * 5
+    if (recipe.childAcceptance === 'high') score += 15
+    else if (recipe.childAcceptance === 'medium') score += 8
+    score += recipe.transportHours * 2
 
-    // Child acceptance
-    if (recipe.childAcceptance === 'high') score += 30
-    else if (recipe.childAcceptance === 'medium') score += 15
+    // Cuisine diversity bonus (encourage different cuisines)
+    if (!usedCuisines.has(recipe.cuisine)) score += 25
 
-    // Transport hours (longer is better)
-    score += recipe.transportHours * 5
+    // Protein diversity bonus (encourage variety)
+    const mainProtein = recipe.tags.find(t =>
+      ['pollo', 'res', 'cerdo', 'pescado', 'huevo', 'legumbres', 'atún', 'camarones'].includes(t.toLowerCase())
+    )
+    if (mainProtein && !usedProteins.has(mainProtein.toLowerCase())) score += 20
 
-    // Preference matching (likes boost, dislikes penalty)
+    // Preference matching
     const hasLikedIngredient = recipe.tags.some(tag =>
       preferences.likes.some(like => tag.toLowerCase().includes(like.toLowerCase()))
     )
-    if (hasLikedIngredient) score += 20
+    if (hasLikedIngredient) score += 15
 
     const hasDislikedIngredient = recipe.tags.some(tag =>
       preferences.dislikes.some(dislike => tag.toLowerCase().includes(dislike.toLowerCase()))
     )
-    if (hasDislikedIngredient) score -= 40
+    if (hasDislikedIngredient) score -= 50
 
-    // Calorie proximity (closer to target is better)
+    // Calorie proximity (reduced penalty for variation)
     const calorieDiff = Math.abs(recipe.nutrition.calories - targetCalories)
-    score -= calorieDiff / 10
+    score -= calorieDiff / 20
+
+    // Add significant randomness for variety
+    score += Math.random() * 40
 
     return { recipe, score }
   })
 
   scored.sort((a, b) => b.score - a.score)
 
-  // Add some randomness among top candidates
-  const topCandidates = scored.slice(0, Math.min(5, scored.length))
+  // Select from top 15 candidates (increased from 5)
+  const topCandidates = scored.slice(0, Math.min(15, scored.length))
   const selected = topCandidates[Math.floor(Math.random() * topCandidates.length)]
 
   return selected.recipe
@@ -120,6 +130,8 @@ export function generateWeeklyMenu(profile: ChildProfile, weekStartDate: string)
 
   const items: MenuItem[] = []
   const usedRecipeIds = new Set<string>()
+  const usedCuisines = new Set<string>()
+  const usedProteins = new Set<string>()
   const startDate = new Date(weekStartDate)
 
   for (let i = 0; i < 5; i++) {
@@ -127,8 +139,21 @@ export function generateWeeklyMenu(profile: ChildProfile, weekStartDate: string)
     date.setDate(startDate.getDate() + i)
     const dateStr = date.toISOString().split('T')[0]
 
-    const recipe = selectBestRecipe(recipes, targetCalories, profile.preferences, usedRecipeIds)
+    const recipe = selectBestRecipe(
+      recipes,
+      targetCalories,
+      profile.preferences,
+      usedRecipeIds,
+      usedCuisines,
+      usedProteins
+    )
     usedRecipeIds.add(recipe.id)
+    usedCuisines.add(recipe.cuisine)
+
+    const mainProtein = recipe.tags.find(t =>
+      ['pollo', 'res', 'cerdo', 'pescado', 'huevo', 'legumbres', 'atún', 'camarones'].includes(t.toLowerCase())
+    )
+    if (mainProtein) usedProteins.add(mainProtein.toLowerCase())
 
     const { portions, nutrition } = adjustPortions(recipe, targetCalories)
 
