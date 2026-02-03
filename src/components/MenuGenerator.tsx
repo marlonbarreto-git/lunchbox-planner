@@ -144,10 +144,10 @@ function NutrientBox({
   color: 'green' | 'blue' | 'orange' | 'purple'
 }) {
   const colorClasses = {
-    green: 'bg-green-50 text-green-700',
-    blue: 'bg-blue-50 text-blue-700',
-    orange: 'bg-orange-50 text-orange-700',
-    purple: 'bg-purple-50 text-purple-700',
+    green: 'bg-green-50 text-green-800',
+    blue: 'bg-blue-50 text-blue-800',
+    orange: 'bg-orange-50 text-orange-800',
+    purple: 'bg-purple-50 text-purple-800',
   }
 
   return (
@@ -156,7 +156,7 @@ function NutrientBox({
         {Math.round(value)}
         <span className="text-sm font-normal ml-1">{unit}</span>
       </div>
-      <div className="text-xs opacity-75">{label}</div>
+      <div className="text-xs">{label}</div>
     </div>
   )
 }

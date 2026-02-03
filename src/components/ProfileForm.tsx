@@ -99,10 +99,11 @@ export function ProfileForm({ onSubmit, onCancel, initialData }: ProfileFormProp
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <label htmlFor="profile-name" className="block text-sm font-medium text-slate-700 mb-1">
           Nombre del niño/a
         </label>
         <input
+          id="profile-name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -114,10 +115,11 @@ export function ProfileForm({ onSubmit, onCancel, initialData }: ProfileFormProp
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="profile-birthdate" className="block text-sm font-medium text-slate-700 mb-1">
             Fecha de nacimiento
           </label>
           <input
+            id="profile-birthdate"
             type="date"
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
@@ -126,10 +128,11 @@ export function ProfileForm({ onSubmit, onCancel, initialData }: ProfileFormProp
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="profile-sex" className="block text-sm font-medium text-slate-700 mb-1">
             Sexo
           </label>
           <select
+            id="profile-sex"
             value={sex}
             onChange={(e) => setSex(e.target.value as Sex)}
             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -142,10 +145,11 @@ export function ProfileForm({ onSubmit, onCancel, initialData }: ProfileFormProp
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="profile-weight" className="block text-sm font-medium text-slate-700 mb-1">
             Peso (kg)
           </label>
           <input
+            id="profile-weight"
             type="number"
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
@@ -158,10 +162,11 @@ export function ProfileForm({ onSubmit, onCancel, initialData }: ProfileFormProp
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="profile-height" className="block text-sm font-medium text-slate-700 mb-1">
             Altura (cm)
           </label>
           <input
+            id="profile-height"
             type="number"
             value={heightCm}
             onChange={(e) => setHeightCm(e.target.value)}
@@ -174,15 +179,16 @@ export function ProfileForm({ onSubmit, onCancel, initialData }: ProfileFormProp
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <span id="activity-label" className="block text-sm font-medium text-slate-700 mb-1">
           Nivel de actividad física
-        </label>
-        <div className="grid grid-cols-3 gap-2">
+        </span>
+        <div className="grid grid-cols-3 gap-2" role="group" aria-labelledby="activity-label">
           {(['light', 'moderate', 'heavy'] as ActivityLevel[]).map((level) => (
             <button
               key={level}
               type="button"
               onClick={() => setActivityLevel(level)}
+              aria-pressed={activityLevel === level}
               className={`
                 px-4 py-2 rounded-lg text-sm font-medium transition-colors
                 ${activityLevel === level

@@ -16,10 +16,10 @@ const config: Config = {
           300: '#86efac',
           400: '#4ade80',
           500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
+          600: '#15803d', // Darkened for better contrast (was #16a34a)
+          700: '#166534', // Darkened for better contrast (was #15803d)
+          800: '#14532d', // Darkened for better contrast (was #166534)
+          900: '#0f401f', // Darkened (was #14532d)
         },
         accent: {
           50: '#fff7ed',

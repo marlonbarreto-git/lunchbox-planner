@@ -47,7 +47,7 @@ export default function Home() {
           <h1 className="text-3xl md:text-5xl font-bold mb-2">
             LunchBox Planner
           </h1>
-          <p className="text-primary-100 text-lg md:text-xl">
+          <p className="text-white text-lg md:text-xl">
             Almuerzos escolares nutritivos, sin complicaciones
           </p>
         </div>
